@@ -7,40 +7,57 @@
 sf::RenderWindow window;
 
 #if defined(__unix__) || defined(__unix)
-int main(int argc, char ** argv) {
+int main(int argc, char **argv)
+{
 #else
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
 #endif
 
     window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Bongo Cat for osu!", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
 
     // loading configs
-    while (!data::init()) {
+    while (!data::init())
+    {
         continue;
     }
 
+    Json::Value bg_size = data::cfg["custom"]["bg_size"];
+    int x = bg_size[0].asInt();
+    int y = bg_size[1].asInt();
+
+    window.create(sf::VideoMode(x, y), "Bongo Cat for osu!", sf::Style::Titlebar | sf::Style::Close);
+    window.setFramerateLimit(60);
+
     // initialize input
-    if (!input::init()) {
+    if (!input::init())
+    {
         return EXIT_FAILURE;
     }
 
     bool is_reload = false;
     bool is_show_input_debug = false;
 
-    while (window.isOpen()) {
+    while (window.isOpen())
+    {
         sf::Event event;
-        while (window.pollEvent(event)) {
-            switch (event.type) {
+        while (window.pollEvent(event))
+        {
+            switch (event.type)
+            {
             case sf::Event::Closed:
                 window.close();
                 break;
 
             case sf::Event::KeyPressed:
                 // get reload config prompt
-                if (event.key.code == sf::Keyboard::R && event.key.control) {
-                    if (!is_reload) {
-                        while (!data::init()) {
+                if (event.key.code == sf::Keyboard::R && event.key.control)
+                {
+                    if (!is_reload)
+                    {
+                        while (!data::init())
+                        {
                             continue;
                         }
                     }
@@ -49,7 +66,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
                 }
 
                 // toggle joystick debug panel
-                if (event.key.code == sf::Keyboard::D && event.key.control) {
+                if (event.key.code == sf::Keyboard::D && event.key.control)
+                {
                     is_show_input_debug = !is_show_input_debug;
                     break;
                 }
@@ -68,7 +86,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
         int alpha_value = rgb.size() == 3 ? 255 : rgb[3].asInt();
 
         window.clear(sf::Color(red_value, green_value, blue_value, alpha_value));
-        switch (mode) {
+        switch (mode)
+        {
         case 1:
             osu::draw();
             break;
@@ -85,7 +104,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
             custom::draw();
         }
 
-        if (is_show_input_debug) {
+        if (is_show_input_debug)
+        {
             input::drawDebugPanel();
         }
 
@@ -95,4 +115,3 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     input::cleanup();
     return 0;
 }
-
